@@ -240,7 +240,7 @@ public: // triggers
    *  In the base class this method does nothing.
    */
   virtual void
-  onDroppedInterest(const Face& egress, const Interest& interest);
+  onDroppedInterest(const FaceEndpoint& egress, const Interest& interest);
 
   /** \brief Trigger after new nexthop is added
    *
@@ -251,35 +251,36 @@ public: // triggers
   afterNewNextHop(const fib::NextHop& nextHop, const shared_ptr<pit::Entry>& pitEntry);
 
 protected: // actions
-  /** \brief Send an Interest packet.
-   *  \param pitEntry the PIT entry
-   *  \param egress face through which to send out the Interest
+  /** \brief Send Interest to egress
+   *  \param pitEntry PIT entry
+   *  \param egress face through which to send out the Interest and destination endpoint
    *  \param interest the Interest packet
    */
   VIRTUAL_WITH_TESTS void
-  sendInterest(const shared_ptr<pit::Entry>& pitEntry, Face& egress,
-               const Interest& interest);
+  sendInterest(const shared_ptr<pit::Entry>& pitEntry,
+               const FaceEndpoint& egress, const Interest& interest);
 
-  /** \brief Send a Data packet.
-   *  \param pitEntry the PIT entry
+  /** \brief Send \p data to \p egress
+   *  \param pitEntry PIT entry
    *  \param data the Data packet
-   *  \param egress face through which to send out the Data
+   *  \param egress face through which to send out the Data and destination endpoint
    */
   VIRTUAL_WITH_TESTS void
-  sendData(const shared_ptr<pit::Entry>& pitEntry, const Data& data, Face& egress);
+  sendData(const shared_ptr<pit::Entry>& pitEntry, const Data& data, const FaceEndpoint& egress);
 
-  /** \brief Send a Data packet to all matched and qualified faces.
+  /** \brief Send \p data to all matched and qualified face-endpoint pairs
    *
-   *  A matched face is qualified if it is ad-hoc or it is NOT \p inFace.
+   *  A matched face is qualified if it is ad-hoc or it is NOT \p ingress
    *
-   *  \param pitEntry the PIT entry
-   *  \param inFace face on which the Data arrived
+   *  \param pitEntry PIT entry
+   *  \param ingress face through which the Data comes from and endpoint of the sender
    *  \param data the Data packet
    */
   VIRTUAL_WITH_TESTS void
-  sendDataToAll(const shared_ptr<pit::Entry>& pitEntry, const Face& inFace, const Data& data);
+  sendDataToAll(const shared_ptr<pit::Entry>& pitEntry,
+                const FaceEndpoint& ingress, const Data& data);
 
-  /** \brief Schedule the PIT entry for immediate deletion.
+  /** \brief Schedule the PIT entry for immediate deletion
    *
    *  This helper function sets the PIT entry expiry time to zero.
    *  The strategy should invoke this function when it concludes that the Interest cannot
@@ -291,32 +292,31 @@ protected: // actions
     this->setExpiryTimer(pitEntry, 0_ms);
   }
 
-  /** \brief Send a Nack packet.
+  /** \brief Send Nack to egress
+   *  \param pitEntry PIT entry
+   *  \param egress face through which to send out the Nack and destination endpoint
+   *  \param header Nack header
    *
-   *  The egress face must have a PIT in-record, otherwise this method has no effect.
-   *
-   *  \param pitEntry the PIT entry
-   *  \param egress face through which to send out the Nack
-   *  \param header the Nack header
+   *  The egress must have a PIT in-record, otherwise this method has no effect.
    */
   VIRTUAL_WITH_TESTS void
-  sendNack(const shared_ptr<pit::Entry>& pitEntry, Face& egress,
-           const lp::NackHeader& header)
+  sendNack(const shared_ptr<pit::Entry>& pitEntry,
+           const FaceEndpoint& egress, const lp::NackHeader& header)
   {
     m_forwarder.onOutgoingNack(pitEntry, egress, header);
   }
 
-  /** \brief Send Nack to every face that has an in-record, except those in \p exceptFaces
-   *  \param pitEntry the PIT entry
-   *  \param header the Nack header
-   *  \param exceptFaces list of faces that should be excluded from sending Nacks
-   *  \note This is not an action, but a helper that invokes the sendNack() action.
+  /** \brief Send Nack to every face-endpoint pair that has an in-record, except those in \p exceptFaceEndpoints
+   *  \param pitEntry PIT entry
+   *  \param header NACK header
+   *  \param exceptFaceEndpoints list of face-endpoint pairs that should be excluded from sending Nacks
+   *  \note This is not an action, but a helper that invokes the sendNack action.
    */
   void
   sendNacks(const shared_ptr<pit::Entry>& pitEntry, const lp::NackHeader& header,
-            std::initializer_list<const Face*> exceptFaces = {});
+            std::initializer_list<FaceEndpoint> exceptFaceEndpoints = {});
 
-  /** \brief Schedule the PIT entry to be erased after \p duration.
+  /** \brief Schedule the PIT entry to be erased after \p duration
    */
   void
   setExpiryTimer(const shared_ptr<pit::Entry>& pitEntry, time::milliseconds duration)
@@ -325,7 +325,7 @@ protected: // actions
   }
 
 protected: // accessors
-  /** \brief Performs a FIB lookup, considering Link object if present.
+  /** \brief Performs a FIB lookup, considering Link object if present
    */
   const fib::Entry&
   lookupFib(const pit::Entry& pitEntry) const;

@@ -1,6 +1,6 @@
 /* -*- Mode:C++; c-file-style:"gnu"; indent-tabs-mode:nil; -*- */
 /*
- * Copyright (c) 2014-2020,  Regents of the University of California,
+ * Copyright (c) 2014-2019,  Regents of the University of California,
  *                           Arizona Board of Regents,
  *                           Colorado State University,
  *                           University Pierre & Marie Curie, Sorbonne University,
@@ -33,7 +33,9 @@
 namespace nfd {
 namespace fw {
 
-/** \brief A forwarding strategy that forwards Interests to all FIB nexthops
+/** \brief a forwarding strategy that forwards Interest to all FIB nexthops
+ *
+ *  \note This strategy is not EndpointId-aware.
  */
 class MulticastStrategy : public Strategy
                         , public ProcessNackTraits<MulticastStrategy>

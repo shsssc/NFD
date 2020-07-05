@@ -1,6 +1,6 @@
 /* -*- Mode:C++; c-file-style:"gnu"; indent-tabs-mode:nil; -*- */
 /*
- * Copyright (c) 2014-2020,  Regents of the University of California,
+ * Copyright (c) 2014-2019,  Regents of the University of California,
  *                           Arizona Board of Regents,
  *                           Colorado State University,
  *                           University Pierre & Marie Curie, Sorbonne University,
@@ -32,9 +32,11 @@
 namespace nfd {
 namespace fw {
 
-/** \brief A forwarding strategy that randomly chooses a nexthop
+/** \brief Randomly chooses a nexthop
  *
- *  Sends the incoming Interest to a random outgoing face, excluding the incoming face.
+ * Sends an incoming interest to a random outgoing face,
+ * excluding the incoming face.
+ *
  */
 class RandomStrategy : public Strategy
                      , public ProcessNackTraits<RandomStrategy>
