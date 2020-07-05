@@ -118,6 +118,18 @@ public: // enumeration
     return Iterator();
   }
 
+  const std::vector<shared_ptr<pit::Entry>>
+  lookupPIT(Name name){
+    bool hasDigest = name.size() > 0 && name[-1].isImplicitSha256Digest();
+    size_t nteDepth = name.size() - static_cast<int>(hasDigest);
+    nteDepth = std::min(nteDepth, NameTree::getMaxDepth());
+    name_tree::Entry* nte = m_nameTree.findExactMatch(name, nteDepth);
+    if (nte == nullptr) {
+      return std::vector<shared_ptr<pit::Entry>>();
+    }
+    return nte->getPitEntries();
+  }
+
 private:
   void
   erase(Entry* pitEntry, bool canDeleteNte);

@@ -330,6 +330,11 @@ protected: // accessors
   const fib::Entry&
   lookupFib(const pit::Entry& pitEntry) const;
 
+  const std::vector<shared_ptr<pit::Entry>>
+  lookupPit(const Name& n) const{
+    return m_forwarder.m_pit.lookupPIT(n);
+  }
+
   MeasurementsAccessor&
   getMeasurements()
   {
@@ -393,7 +398,7 @@ PUBLIC_WITH_TESTS_ELSE_PROTECTED: // setter
   {
     m_wantNewNextHopTrigger = enabled;
   }
-
+  
 private: // registry
   typedef std::function<unique_ptr<Strategy>(Forwarder& forwarder, const Name& strategyName)> CreateFunc;
   typedef std::map<Name, CreateFunc> Registry; // indexed by strategy name
