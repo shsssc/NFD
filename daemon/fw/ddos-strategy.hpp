@@ -4,6 +4,7 @@
 #include "strategy.hpp"
 #include "nfd.hpp"
 #include "ddos-record.hpp"
+//#include "process-nack-traits.hpp"
 namespace nfd
 {
     namespace fw
@@ -13,12 +14,11 @@ namespace nfd
             return nack.getInterest().getName().getPrefix(nack.getHeader().getPrefix());
         }
 
-        typedef std::map<FaceId, std::map<Name,RestrictionRecord> > DDoSRecords;
+        typedef std::map<FaceId, std::map<Name, RestrictionRecord>> DDoSRecords;
 
-        class DDOSStrategyBase : public Strategy
+        class DDOSStrategyBase : public Strategy /* ,public ProcessNackTraits<DDOSStrategyBase>*/
         {
         public:
-
             DDoSRecords Records;
 
             void
@@ -45,6 +45,17 @@ namespace nfd
  *
  *  \note This strategy is not EndpointId-aware.
  */
+        class DDOSStrategyEdge : public DDOSStrategyBase
+        {
+        public:
+            explicit DDOSStrategyEdge(Forwarder &forwarder, const Name &name = getStrategyName());
+
+            static const Name &
+            getStrategyName();
+            void afterReceiveInterest(const FaceEndpoint &ingress, const Interest &interest,
+                                           const shared_ptr<pit::Entry> &pitEntry) override;
+        };
+        
         class DDOSStrategy : public DDOSStrategyBase
         {
         public:
@@ -52,8 +63,8 @@ namespace nfd
 
             static const Name &
             getStrategyName();
+            
         };
-
     } // namespace fw
 } // namespace nfd
 #endif // NFD_DAEMON_FW_BEST_ROUTE_STRATEGY_HPP
