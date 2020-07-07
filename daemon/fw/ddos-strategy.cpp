@@ -6,7 +6,9 @@ namespace nfd
     namespace fw
     {
         NFD_LOG_INIT(DDOSStrategyBase);
+        NFD_REGISTER_STRATEGY(DDOSStrategy);
         NFD_REGISTER_STRATEGY(DDOSStrategyEdge);
+
         DDOSStrategyBase::DDOSStrategyBase(Forwarder &forwarder)
             : Strategy(forwarder) //,
                                   // ProcessNackTraits(this)
@@ -122,6 +124,7 @@ namespace nfd
                 return;
             }
             //for each restriction on the face
+
             for (auto &record : Records[ingress.face.getId()])
             {
                 const Name &prefix = record.first;
@@ -138,9 +141,10 @@ namespace nfd
                 else
                 {
                     restriction.refresh();
-                    //on voilation, we do not forward this packet
+                    //on voilation,  do not forward this packet
+                    //note that we already check no pending out record, so should be no collateral damage
                     NFD_LOG_INFO("FITT voilation detected " << interest.getName());
-                    return;
+                    this->rejectPendingInterest(pitEntry);
                 }
             }
             //check fib and forward
@@ -181,7 +185,6 @@ namespace nfd
             static Name strategyName("/localhost/nfd/strategy/ddos/%FD%01");
             return strategyName;
         }
-        
 
     } // namespace fw
 } // namespace nfd

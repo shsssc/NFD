@@ -53,9 +53,9 @@ namespace nfd
             static const Name &
             getStrategyName();
             void afterReceiveInterest(const FaceEndpoint &ingress, const Interest &interest,
-                                           const shared_ptr<pit::Entry> &pitEntry) override;
+                                      const shared_ptr<pit::Entry> &pitEntry) override;
         };
-        
+
         class DDOSStrategy : public DDOSStrategyBase
         {
         public:
@@ -63,7 +63,6 @@ namespace nfd
 
             static const Name &
             getStrategyName();
-            
         };
     } // namespace fw
 } // namespace nfd
