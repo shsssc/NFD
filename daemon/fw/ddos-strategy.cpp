@@ -145,6 +145,7 @@ namespace nfd
                     //note that we already check no pending out record, so should be no collateral damage
                     NFD_LOG_INFO("FITT voilation detected " << interest.getName());
                     this->rejectPendingInterest(pitEntry);
+                    return; //must not forward
                 }
             }
             //check fib and forward
